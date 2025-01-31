@@ -52,8 +52,8 @@ int main()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-
-    double elapsed = timer.stop();
+    double elapsed = timer.real_time();
+    timer.stop();
     std::cout << "\nFinal time: " << std::fixed << std::setprecision(4) << elapsed << " seconds\n";
 
     return 0;

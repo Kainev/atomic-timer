@@ -18,12 +18,12 @@ public:
     ~AtomicTimer();
 
     void start();
-    double stop();
+    void stop();
     void reset();
 
     double real_time();
     double smooth_time();
-    double local_time();
+    double local_time() const;
 
 private:
     void _sync_loop();
@@ -34,15 +34,18 @@ private:
     double _sync_rate;
     double _slew_rate;
 
+    std::condition_variable _sync_cv;
+    std::mutex _sync_cv_mutex;
+
     std::thread _sync_thread;
-    std::atomic<bool> _stop_sync;
+    bool _stop_sync;
 
     std::mutex _offset_mutex;
     double _real_offset;
     double _smoothed_offset;
     std::chrono::steady_clock::time_point _last_update;
 
-    bool _running;
+    std::atomic<bool> _running;
     std::chrono::steady_clock::time_point _start_time;
     double _start_offset; 
 };
