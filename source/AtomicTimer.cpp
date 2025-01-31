@@ -34,18 +34,13 @@ void AtomicTimer::start()
     _start_time = std::chrono::steady_clock::now();
     _last_update = _start_time;
 
-     std::thread([this](){
-        for (auto &client : _ntp_clients) {
-            client.connect();
-        }
+    _stop_sync = false;
 
-        _stop_sync = false;
-
-        if(!_sync_thread.joinable())
-        {
-            _sync_thread = std::thread(&AtomicTimer::_sync_loop, this);
-        }
-    }).detach(); 
+    if(!_sync_thread.joinable())
+    {
+        _sync_thread = std::thread(&AtomicTimer::_sync_loop, this);
+    }
+    
 }
 
 void AtomicTimer::stop()
@@ -53,7 +48,6 @@ void AtomicTimer::stop()
     if(!_running) {
         return;
     }
-
 
     {
         std::lock_guard<std::mutex> lock(_sync_cv_mutex);
@@ -77,7 +71,9 @@ void AtomicTimer::stop()
 
 void AtomicTimer::reset()
 {
+    std::lock_guard<std::mutex> lk(_offset_mutex);
     _start_time = std::chrono::steady_clock::now();
+    _start_offset = _real_offset;
 }
 
 double AtomicTimer::real_time()
@@ -129,6 +125,10 @@ double AtomicTimer::local_time() const
 void AtomicTimer::_sync_loop()
 {
     using namespace std::chrono;
+
+    for (auto &client : _ntp_clients) {
+        client.connect();
+    }
 
     auto next_sync = steady_clock::now();
 
