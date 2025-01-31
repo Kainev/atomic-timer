@@ -54,7 +54,7 @@ int main()
     }
     double elapsed = timer.real_time();
     timer.stop();
-    std::cout << "\nFinal time: " << std::fixed << std::setprecision(4) << elapsed << " seconds\n";
+    std::cout << "\nFinal time: " << std::fixed << std::setprecision(4) << elapsed << " seconds" << std::flush;
 
     return 0;
 }
